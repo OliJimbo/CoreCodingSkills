@@ -1,0 +1,157 @@
+---
+title: "Week 7 - Part 2"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Tidy Scripting
+
+I told you that there would be less typing under the tidyverse, but it feels like we have been doing a very similar amount!
+
+### dplyr
+The package 'dplyr' is going to help us reduce the amount of typing we have to do.
+
+`dplyr` provides a set of _verbs_ (aka functions) that can be used to manipulate dataframes.
+All dplyr verbs have the following in common:
+
+- First argument is always a dataframe,
+- Subsequent arguments refer to the columns of the dataframe to be acted on
+- The output is always a dataframe.
+
+Another feature that's going to help us minimise typing is the pipe operator.
+The pipe has a couple of forms:
+
+- %>%
+- |>
+
+We're going to use the second one as it is newer - but note that the first one has it's uses (they are not identical).
+
+
+The pipe feeds the output from one function to the input of another.
+In common language you could replace the pipe with 'and then'.
+
+So:-
+
+```{R, eval=FALSE}
+
+df |>
+  my_function() |>
+  my_other_function |>
+  print()
+
+```
+
+Is essentially saying:
+
+"start with df and then do my function to it, and then do my other function to the output, and then print the final output"
+
+The tidyverse is written in such a way that it is as easy to read a script as it is to read the above sentence.
+
+
+### Summarising data
+
+We're going to explore tidy scripting using a personality dataset.
+
+Load this using `load('data/big_five.rds')`.
+
+This loads an object called `bfi` into the environment.
+
+Lets have a look at the columns.
+We're going to use `glimpse()` again, but this time with a pipe:
+
+```{R, eval=FALSE}
+
+bfi |>
+  glimpse()
+
+```
+
+Next, we're going to calculate the mean agreeableness score between males and females in this dataset.
+
+```{R, eval=FALSE}
+bfi |>
+  group_by(gender) |>
+  summarise(average_agreeableness=mean(agree, na.rm=TRUE))
+```
+
+The above does the following:
+
+- Calls up the bfi dataframe
+- Groups it by gender
+- Calculates the mean and returns the output as a dataframe.
+
+#### Exercise
+Repeat the above with the other personality traits.
+
+### Selecting
+
+Rather than working with a whole dataframe, we can extract a subset of columns using the `select()` verb.
+The select verb can take either column names, or a search function.
+
+#### Column name
+
+```{R, eval=FALSE}
+bfi |>
+  select(agree) %>%
+  summarise(average_agreeableness=mean(agree, na.rm=TRUE))
+```
+
+#### Search function
+
+```{R, eval=FALSE}
+bfi |>
+  select(starts_with('a')) %>%
+  summarise(average_agreeableness=mean(agree, na.rm=TRUE), age=mean(age))
+```
+
+
+  
+### Filtering
+
+We might also want to only look at participants from a particular subgroup.
+For instance, let's look at people who are currently in high school.
+We can use the 'filter' verb to do this.
+
+```{R, eval=FALSE}
+bfi |>
+  group_by(gender) |>
+  filter(education=='high_school') |>
+  summarise(average_agreeableness=mean(agree, na.rm=TRUE))
+```
+
+Do we get a different value?
+
+#### Exercise
+
+Try filtering by other categories.
+
+
+### dplyr and ggplot
+
+As ggplot is part of the tidyverse, it works seamlessly with `dplyr`.
+
+```{R, eval=FALSE}
+bfi |>
+  filter(education=='high_school') |>
+  ggplot(aes(y=agree, x=age)) +
+  geom_point()
+```
+
+## Workshop Activities
+
+For the rest of the session, you will be exploring the datasets using what we have learned about visualisation and scripting.
+
+Using any of the datasets that we have used today, come up with some exploratory research questions and create a plot that will answer this.
+
+Are two particular personality traits likely to be correlated?
+Might this relationship vary between genders, or between people from different educational backgrounds?
+
+Feel free to revisit the stroop dataset or the penguin dataset, or the sleep dataset from last week.
+
+I will be around to help you formulate a research question and answer any questions about how to develop your plot using R.
